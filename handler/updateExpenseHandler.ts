@@ -1,30 +1,37 @@
 import { Request, Response } from "express";
-import { UpdateExpenseService } from "../services/updateExpenseService";
+import { updateExpense } from "../services/expenseService";
 import { ExpenseDto } from "../dto/expenseDto";
 
-const updateExpenseService = new UpdateExpenseService();
-
-export const updateExpense = async (req: Request, res: Response) => {
+export const updateExpenseHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { id } = req.params;
+  const updatedData: Partial<ExpenseDto> = req.body;
+
+  // Validación básica de DTO
+  if (
+    updatedData.amount === undefined &&
+    updatedData.category === undefined &&
+    updatedData.date === undefined
+  ) {
+    res
+      .status(400)
+      .send({
+        error:
+          "Al menos uno de los campos amount, category o date debe ser proporcionado.",
+      });
+  }
 
   try {
-    const { amount, category, date, description }: ExpenseDto = req.body;
+    const updatedExpense = await updateExpense(Number(id), updatedData);
 
-    const updatedExpense = await updateExpenseService.updateExpense(
-      Number(id),
-      {
-        amount,
-        category,
-        date,
-        description,
-      }
-    );
-    return res.status(200).json(updatedExpense);
-  } catch (error) {
-    if (error) {
-      return res.status(404).json({ error: "Expense not found" });
+    if (!updatedExpense) {
+      res.status(404).send({ error: "Gasto no encontrado." });
     }
-    console.error("Error updating expense:", error);
-    return res.status(500).json({ error: "Error updating expense" });
+
+    res.status(200).send(updatedExpense);
+  } catch (error) {
+    res.status(400).send({ error });
   }
 };

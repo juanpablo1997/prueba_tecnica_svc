@@ -1,14 +1,11 @@
-import { Request, Response } from "express";
-import { GetAllExpenseService } from "../services/getAllExpenseService";
+import { Request, Response } from 'express';
+import { getAllExpenses } from '../services/expenseService';
 
-const getAllExpenseService = new GetAllExpenseService();
-
-export const getAllExpenses = async (req: Request, res: Response) => {
+export const getAllExpensesHandler = async (req: Request, res: Response): Promise<void> => {
   try {
-    const expenses = await getAllExpenseService.getAllExpenses();
-    return res.status(200).json(expenses);
+    const expenses = await getAllExpenses();
+    res.status(200).send(expenses);
   } catch (error) {
-    console.error("Error fetching expenses:", error);
-    return res.status(500).json({ error: "Error fetching expenses" });
+    res.status(500).send({ error: 'Error al obtener los gastos.' });
   }
 };

@@ -1,21 +1,19 @@
-import { Request, Response } from "express";
-import { ExpenseDto } from "../dto/expenseDto";
-import { CreateExpenseService } from "../services/createExpenseService";
+import { NextFunction, Request, Response } from 'express';
+import { addExpense } from '../services/expenseService';
+import { ExpenseDto } from '../dto/expenseDto';
 
-const createExpenseService = new CreateExpenseService();
+export const addExpenseHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const expenseData: ExpenseDto = req.body;
 
-export const createExpenseHandler = async (req: Request, res: Response) => {
+  // Validación básica de DTO
+  if (!expenseData.amount || !expenseData.category || !expenseData.date) {
+    res.status(400).send({ error: 'Los campos amount, category y date son obligatorios.' });
+  }
+
   try {
-    const { amount, category, date, description }: ExpenseDto = req.body;
-    const newExpense = await createExpenseService.createExpense({
-      amount,
-      category,
-      date,
-      description,
-    });
-    return res.status(201).json(newExpense);
+    const newExpense = await addExpense(expenseData);
+    res.status(201).send(newExpense);
   } catch (error) {
-    console.error("Error creating expense:", error);
-    return res.status(500).json({ error: error });
+    next(error)
   }
 };

@@ -16,7 +16,6 @@ export class Expense extends Model<
   declare category: string; // Categoría del gasto
   declare date: Date; // Fecha del gasto
   declare description?: string; // Descripción opcional del gasto
-
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
