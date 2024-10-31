@@ -1,5 +1,8 @@
 import express, { ErrorRequestHandler } from "express"
 import expenseController from "./routes/expenseController"
+import { initSequelize } from "./models/index"
+
+initSequelize()
 
 const app = express()
 app.use(express.json())
